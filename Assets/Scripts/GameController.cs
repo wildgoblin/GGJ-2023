@@ -61,9 +61,18 @@ public class GameController : MonoBehaviour
     [SerializeField] float startTemperture;
     [SerializeField] float tempertureStepInterval;
 
+    [Header("Slugs")]
+    [SerializeField] float slugSpawnTimer;
+    float slugTimer;
+    [SerializeField] float slugMovementSpeed;
+    [SerializeField] GameObject slugPrefab;
+    [SerializeField] GameObject slugParentObject;
+    [SerializeField] Transform[] slugSpawnerLocation;
+
 
     [Header("DEBUGGING. DO NOT TOUCH.")]
     [SerializeField] float happiness;
+    [SerializeField] float timeAsHappy;
     [SerializeField] bool happy;
     [SerializeField] float sunLevel;
     [SerializeField] bool sunLevelLowOrHigh;
@@ -82,7 +91,7 @@ public class GameController : MonoBehaviour
 
     [Header("References")]
     [SerializeField] List<GameObject> stageForms = new List<GameObject>();
-
+    int currentStageIndex;
 
 
     private void Awake()
@@ -111,11 +120,12 @@ public class GameController : MonoBehaviour
         waterLevel = startWaterLevel;
         nutrientLevel = startNutrientLevels;
         tempertureLevel = startTemperture;
+        timeAsHappy = 0;
 
         waterBtnTimer = disableWaterBtnTime; //Ensure water can be used immediatly
         nutrientBtnTimer = disableNutrientBtnTime; //Ensure Nutrient can be used immediatly
         TurnOffAllStageForms();
-        TurnOnStage1();
+        TurnOnStage(0); // Start at stage 1
         TurnOnSun();
         tempertureOn = false;
 
@@ -123,10 +133,14 @@ public class GameController : MonoBehaviour
 
     }
 
-    private void TurnOnStage1()
+    private void TurnOnStage(int stageIndex)
     {
-        stageForms[0].SetActive(true) ;
+        currentStageIndex = stageIndex;
+        TurnOffAllStageForms();
+        stageForms[stageIndex].SetActive(true) ;
+
     }
+
 
     private void TurnOffAllStageForms()
     {
@@ -147,10 +161,63 @@ public class GameController : MonoBehaviour
         UpdateWaterBool();
         UpdateSunBool();
         UpdateHappinessBool();
+        UpdateSlugs();
+
+        UpdateStage();
 
         waterBtnTimer += Time.deltaTime;
         nutrientBtnTimer += Time.deltaTime;
+        if(happy) { timeAsHappy += Time.deltaTime; }
+       
 
+    }
+
+    private void UpdateSlugs()
+    {
+        if(currentStageIndex >= 2) //Stage 3 +
+        {
+            slugTimer += Time.deltaTime;
+            //Spawn slug after timer
+            if(slugTimer >= slugSpawnTimer)
+            {
+                //spawn Slug
+                Instantiate(slugPrefab, slugParentObject.transform);
+
+
+            }
+
+
+        }
+    }
+
+    private void UpdateStage()
+    {
+
+        if (timeAsHappy >= stageFourTime && currentStageIndex < 4)
+        {
+            //Activate stage 5
+            TurnOnStage(4);
+            Debug.Log("Activate Stage Five");
+        }
+        else if (timeAsHappy < stageFourTime && timeAsHappy >= stageThreeTime && currentStageIndex < 3)
+        {
+            //Activate stage 4
+            TurnOnStage(3);
+            Debug.Log("Activate Stage Four");
+        }
+        else if (timeAsHappy < stageThreeTime && timeAsHappy >= stageTwoTime && currentStageIndex < 2)
+        {
+            //Activate Stage 3
+            TurnOnStage(2);
+            Debug.Log("Activate Stage Three");
+        }
+        else if (timeAsHappy >= stageOneTime && currentStageIndex < 1)
+        {
+            //Activate Stage two
+            TurnOnStage(1);
+            Debug.Log("Activate Stage two");
+        }
+            
     }
 
     private void UpdateNutrientBool()
@@ -209,16 +276,29 @@ public class GameController : MonoBehaviour
 
     private void AdjustNutrientLevels()
     {
+        //Set limits
+        if(nutrientLevel > maxNutrient) { nutrientLevel = maxNutrient; }
+        if (nutrientLevel < 0) { nutrientLevel = 0; }
+        //Adjust levels
         nutrientLevel -= nutrientDescreaseInterval * Time.deltaTime;
+
     }
 
     private void AdjustWaterLevels()
     {
+        //Set limits
+        if (waterLevel > maxWater) { waterLevel = maxWater; }
+        if (waterLevel < 0) { waterLevel = 0; }
+        //Adjust levels
         waterLevel -= waterDecreaseInterval * Time.deltaTime;
     }
 
     private void AdjustTempertureLevels()
     {
+        //Set limits
+        if (tempertureLevel > maxTemperture) { tempertureLevel = maxTemperture; }
+        if (tempertureLevel < minTemperture) { tempertureLevel = minTemperture; }
+        //Adjust levels
         if (tempertureOn)
         {
             if(sunOn)
