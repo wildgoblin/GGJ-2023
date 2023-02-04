@@ -27,6 +27,8 @@ public class GameController : MonoBehaviour
     [SerializeField] float sunStepInterval;
     [SerializeField] Image sunButton;
     [SerializeField] Image shadeButton;
+    private Color sunBtnBGColor;
+    
 
     [Header("Water Levels")]
     [SerializeField] float maxWater;
@@ -56,8 +58,7 @@ public class GameController : MonoBehaviour
     [SerializeField] float happiness;
     [SerializeField] bool happy;
     [SerializeField] float sunLevel;
-    [SerializeField] bool sunLevelLow;
-    [SerializeField] bool sunLevelHigh;
+    [SerializeField] bool sunLevelLowOrHigh;
 
     [SerializeField] bool sunOn;
     [SerializeField] float waterLevel;
@@ -67,7 +68,11 @@ public class GameController : MonoBehaviour
     [SerializeField] float tempertureLevel;
 
     [SerializeField] bool tempertureOn;
-    
+
+    [Header("References")]
+    [SerializeField] List<GameObject> stageForms = new List<GameObject>();
+
+
 
     private void Awake()
     {
@@ -90,14 +95,32 @@ public class GameController : MonoBehaviour
 
     private void Start()
     {
+        sunBtnBGColor = sunButton.color;
         sunLevel = startSunLevel;
         waterLevel = startWaterLevel;
         nutrientLevel = startNutrientLevels;
         tempertureLevel = startTemperture;
 
+        TurnOffAllStageForms();
+        TurnOnStage1();
         TurnOnSun();
         tempertureOn = false;
 
+
+
+    }
+
+    private void TurnOnStage1()
+    {
+        stageForms[0].SetActive(true) ;
+    }
+
+    private void TurnOffAllStageForms()
+    {
+        foreach(var form in stageForms)
+        {
+            form.gameObject.SetActive(false);
+        }
     }
 
     private void Update()
@@ -143,13 +166,13 @@ public class GameController : MonoBehaviour
     private void UpdateSunBool()
     {
         //Decrease Happiness if too low or too high
-        if (sunLevel < lowSunLevel)
+        if (sunLevel < lowSunLevel || sunLevel > highSunLevel)
         {
-            happy = false;
+            sunLevelLowOrHigh = true;
         }
-        else if (sunLevel > highSunLevel)
+        else
         {
-            happy = false;
+            sunLevelLowOrHigh = false;
         }
 
     }
@@ -157,10 +180,13 @@ public class GameController : MonoBehaviour
     private void UpdateHappinessBool()
     {
 
-        if (happy == false)
+        if (nutrientLevelLow == true || waterLevelLow == true || sunLevelLowOrHigh == true)
         {
-            //Sad logic
-            Debug.Log("SAD!");
+            happy = false;
+        }
+        else
+        {
+            happy = true;
         }
 
     }
@@ -204,7 +230,7 @@ public class GameController : MonoBehaviour
 
     public void TurnOnSun()
     {
-        shadeButton.color = Color.white;
+        shadeButton.color = sunBtnBGColor;
         sunButton.color = Color.grey;
 
         sunOn = true;
@@ -213,7 +239,7 @@ public class GameController : MonoBehaviour
     public void TurnOffSun()
     {
         shadeButton.color = Color.grey;
-        sunButton.color = Color.white;
+        sunButton.color = sunBtnBGColor;
         sunOn = false;
     }
 
