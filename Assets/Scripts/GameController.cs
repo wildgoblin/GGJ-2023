@@ -2,6 +2,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+
 
 public class GameController : MonoBehaviour
 {
@@ -9,11 +11,7 @@ public class GameController : MonoBehaviour
     public static GameController Instance { get; private set; }
 
     [Header("Happiness Levels")]
-    [SerializeField] float maxHappiness;
-    [SerializeField] float happinessHigh;
-    [SerializeField] float happinessMed;
-    [SerializeField] float happinessLow;
-    [SerializeField] float startHappiness;
+    [SerializeField] float happinessDecayInterval;    
 
     [Header("Stage Intervals")]
     [SerializeField] float stageOneTime;
@@ -27,21 +25,26 @@ public class GameController : MonoBehaviour
     [SerializeField] float highSunLevel;
     [SerializeField] float startSunLevel;
     [SerializeField] float sunStepInterval;
+    [SerializeField] Image sunButton;
+    [SerializeField] Image shadeButton;
 
     [Header("Water Levels")]
     [SerializeField] float maxWater;
     [SerializeField] float lowWaterLevel;
     [SerializeField] float startWaterLevel;
-    [SerializeField] float waterStepInterval;
+    [SerializeField] float waterDecreaseInterval;
+    [SerializeField] float waterIncreaseStepInterval;
 
     [Header("Nutrient Levels")]
     [SerializeField] float maxNutrient;
     [SerializeField] float lowNutrientLevel;
     [SerializeField] float startNutrientLevels;
-    [SerializeField] float nutrientStepInterval;
+    [SerializeField] float nutrientDescreaseInterval;
+    [SerializeField] float nutrientIncreaseStepInterval;
 
     [Header("Temperture Levels")]    
     [SerializeField] float maxTemperture;
+    [SerializeField] float minTemperture;
     [SerializeField] float lowTemperture;
     [SerializeField] float midTemperture;
     [SerializeField] float highTemperture;
@@ -51,11 +54,18 @@ public class GameController : MonoBehaviour
 
     [Header("DEBUGGING. DO NOT TOUCH.")]
     [SerializeField] float happiness;
+    [SerializeField] bool happy;
     [SerializeField] float sunLevel;
+    [SerializeField] bool sunLevelLow;
+    [SerializeField] bool sunLevelHigh;
+
     [SerializeField] bool sunOn;
     [SerializeField] float waterLevel;
+    [SerializeField] bool waterLevelLow;
     [SerializeField] float nutrientLevel;
+    [SerializeField] bool nutrientLevelLow;
     [SerializeField] float tempertureLevel;
+
     [SerializeField] bool tempertureOn;
     
 
@@ -66,26 +76,26 @@ public class GameController : MonoBehaviour
 
     private void Singleton()
     {
-        if(Instance != null)
+        if(Instance != null && Instance != this)
         {
-            Instance = this;
+            Destroy(this.gameObject);
             //DontDestroyOnLoad(); MAY NOT NEED THIS
         }
         else
         {
-            Destroy(this);
+            Instance = this;
+            
         }
     }
 
     private void Start()
     {
-        happiness = startHappiness;
         sunLevel = startSunLevel;
         waterLevel = startWaterLevel;
         nutrientLevel = startNutrientLevels;
         tempertureLevel = startTemperture;
 
-        sunOn = true;
+        TurnOnSun();
         tempertureOn = false;
 
     }
@@ -93,7 +103,76 @@ public class GameController : MonoBehaviour
     private void Update()
     {
         AdjustSunLevels();
+        AdjustWaterLevels();
+        AdjustNutrientLevels();
         AdjustTempertureLevels();
+
+        UpdateNutrientBool();
+        UpdateWaterBool();
+        UpdateSunBool();
+        UpdateHappinessBool();
+
+    }
+
+    private void UpdateNutrientBool()
+    {
+        if(nutrientLevel < lowNutrientLevel)
+        {
+            nutrientLevelLow = true;
+        }
+        else
+        {
+            nutrientLevelLow = false;
+        }
+
+
+    }
+
+    private void UpdateWaterBool()
+    {
+        if(waterLevel < lowWaterLevel)
+        {
+            waterLevelLow = true;
+        }
+        else
+        {
+            waterLevelLow = false;
+        }
+    }
+
+    private void UpdateSunBool()
+    {
+        //Decrease Happiness if too low or too high
+        if (sunLevel < lowSunLevel)
+        {
+            happy = false;
+        }
+        else if (sunLevel > highSunLevel)
+        {
+            happy = false;
+        }
+
+    }
+
+    private void UpdateHappinessBool()
+    {
+
+        if (happy == false)
+        {
+            //Sad logic
+            Debug.Log("SAD!");
+        }
+
+    }
+
+    private void AdjustNutrientLevels()
+    {
+        nutrientLevel -= nutrientDescreaseInterval * Time.deltaTime;
+    }
+
+    private void AdjustWaterLevels()
+    {
+        waterLevel -= waterDecreaseInterval * Time.deltaTime;
     }
 
     private void AdjustTempertureLevels()
@@ -125,22 +204,27 @@ public class GameController : MonoBehaviour
 
     public void TurnOnSun()
     {
+        shadeButton.color = Color.white;
+        sunButton.color = Color.grey;
+
         sunOn = true;
     }
 
     public void TurnOffSun()
     {
+        shadeButton.color = Color.grey;
+        sunButton.color = Color.white;
         sunOn = false;
     }
 
     public void AddWater()
     {
-        waterLevel += waterStepInterval;
+        waterLevel += waterIncreaseStepInterval;
     }
 
     public void AddNutrients()
     {
-        nutrientLevel += nutrientStepInterval;
+        nutrientLevel += nutrientIncreaseStepInterval;
     }
 
     
