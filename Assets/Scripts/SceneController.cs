@@ -14,14 +14,15 @@ public class SceneController : MonoBehaviour
 
     private void Singleton()
     {
-        if (Instance != null)
+        if (Instance != null && Instance != this)
         {
-            Instance = this;
-            DontDestroyOnLoad(this);
+            Destroy(this);
+
         }
         else
         {
-            Destroy(this);
+            Instance = this;
+            DontDestroyOnLoad(this);
         }
     }
 
