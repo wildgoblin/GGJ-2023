@@ -33,16 +33,24 @@ public class GameController : MonoBehaviour
     [Header("Water Levels")]
     [SerializeField] float maxWater;
     [SerializeField] float lowWaterLevel;
+    [SerializeField] float highWaterLevel;
     [SerializeField] float startWaterLevel;
     [SerializeField] float waterDecreaseInterval;
     [SerializeField] float waterIncreaseStepInterval;
+    [SerializeField] ParticleSystem rainParticle;
+    [SerializeField] float disableWaterBtnTime;
+    float waterBtnTimer;
 
     [Header("Nutrient Levels")]
     [SerializeField] float maxNutrient;
     [SerializeField] float lowNutrientLevel;
+    [SerializeField] float highNutrientLevel;
     [SerializeField] float startNutrientLevels;
     [SerializeField] float nutrientDescreaseInterval;
     [SerializeField] float nutrientIncreaseStepInterval;
+    [SerializeField] ParticleSystem nutrientParticle;
+    [SerializeField] float disableNutrientBtnTime;
+    float nutrientBtnTimer;
 
     [Header("Temperture Levels")]    
     [SerializeField] float maxTemperture;
@@ -65,9 +73,12 @@ public class GameController : MonoBehaviour
     [SerializeField] bool waterLevelLow;
     [SerializeField] float nutrientLevel;
     [SerializeField] bool nutrientLevelLow;
+    
     [SerializeField] float tempertureLevel;
 
     [SerializeField] bool tempertureOn;
+
+    
 
     [Header("References")]
     [SerializeField] List<GameObject> stageForms = new List<GameObject>();
@@ -101,6 +112,8 @@ public class GameController : MonoBehaviour
         nutrientLevel = startNutrientLevels;
         tempertureLevel = startTemperture;
 
+        waterBtnTimer = disableWaterBtnTime; //Ensure water can be used immediatly
+        nutrientBtnTimer = disableNutrientBtnTime; //Ensure Nutrient can be used immediatly
         TurnOffAllStageForms();
         TurnOnStage1();
         TurnOnSun();
@@ -134,6 +147,9 @@ public class GameController : MonoBehaviour
         UpdateWaterBool();
         UpdateSunBool();
         UpdateHappinessBool();
+
+        waterBtnTimer += Time.deltaTime;
+        nutrientBtnTimer += Time.deltaTime;
 
     }
 
@@ -245,12 +261,24 @@ public class GameController : MonoBehaviour
 
     public void AddWater()
     {
-        waterLevel += waterIncreaseStepInterval;
+        if(waterLevel < highWaterLevel && waterBtnTimer >= disableWaterBtnTime )
+        {
+            Instantiate(rainParticle);
+            waterLevel += waterIncreaseStepInterval;
+            waterBtnTimer = 0;
+        }
+
     }
 
     public void AddNutrients()
     {
-        nutrientLevel += nutrientIncreaseStepInterval;
+        if(nutrientLevel < highNutrientLevel && nutrientBtnTimer >= disableNutrientBtnTime)
+        {
+            Instantiate(nutrientParticle);
+            nutrientLevel += nutrientIncreaseStepInterval;
+            nutrientBtnTimer = 0;
+        }
+        
     }
 
     
