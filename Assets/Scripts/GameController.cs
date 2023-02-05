@@ -56,6 +56,7 @@ public class GameController : MonoBehaviour
     [SerializeField] float disableNutrientBtnTime;
     float nutrientBtnTimer;
     [SerializeField] AudioClip nutrientsSound;
+    
 
     [Header("Temperture Levels")]    
     [SerializeField] float maxTemperture;
@@ -66,6 +67,7 @@ public class GameController : MonoBehaviour
     [SerializeField] float startTemperture;
     [SerializeField] float tempertureStepInterval;
     [SerializeField] Slider tempertureSlider;
+    
 
     [Header("Slugs")]
     
@@ -81,7 +83,8 @@ public class GameController : MonoBehaviour
     SpriteRenderer sprayBottleSpriteRenderer;
     [SerializeField] AudioClip sprayBottleSound;
     AudioSource slugParentAudioSource;
-    
+    [SerializeField] Button sprayBottleButton;
+
 
 
     [Header("DEBUGGING. DO NOT TOUCH.")]
@@ -137,6 +140,8 @@ public class GameController : MonoBehaviour
         waterLevel = startWaterLevel;
         nutrientLevel = startNutrientLevels;
         tempertureLevel = startTemperture;
+        tempertureSlider.gameObject.SetActive(false);
+        sprayBottleButton.gameObject.SetActive(false);
         timeAsHappy = 0;
 
         //References
@@ -306,12 +311,15 @@ public class GameController : MonoBehaviour
         {
             //Activate Stage 3
             TurnOnStage(2);
+            sprayBottleButton.gameObject.SetActive(true);
             Debug.Log("Activate Stage Three");
         }
         else if (timeAsHappy >= stageOneTime && currentStageIndex < 1)
         {
             //Activate Stage two
             TurnOnStage(1);
+            tempertureSlider.gameObject.SetActive(true);
+            tempertureOn = true;
             Debug.Log("Activate Stage two");
         }
             
@@ -546,6 +554,21 @@ public class GameController : MonoBehaviour
     {
         return slugDieTimer;
     }
+
+    public void ToggleTime()
+    {
+        if (Time.timeScale == 1)
+        {
+            Time.timeScale = 0;
+        }
+        else
+        {
+            Time.timeScale = 1;
+        }
+        
+    }
+
+
 
 
 
