@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Playables;
 
 
 public class GameController : MonoBehaviour
@@ -110,6 +111,7 @@ public class GameController : MonoBehaviour
 
     [Header("References")]
     [SerializeField] List<GameObject> stageForms = new List<GameObject>();
+    [SerializeField] PlayableDirector timelineDirector;
     AudioSource audioSource;
     int currentStageIndex;
 
@@ -164,7 +166,7 @@ public class GameController : MonoBehaviour
     {
         currentStageIndex = stageIndex;
         TurnOffAllStageForms();
-        stageForms[stageIndex].SetActive(true) ;
+        stageForms[stageIndex].SetActive(true);
 
     }
 
@@ -300,6 +302,8 @@ public class GameController : MonoBehaviour
             //Activate stage 5
             TurnOnStage(4);
             Debug.Log("Activate Stage Five");
+            //Play timeline
+            timelineDirector.enabled = true;
         }
         else if (timeAsHappy < stageFourTime && timeAsHappy >= stageThreeTime && currentStageIndex < 3)
         {
