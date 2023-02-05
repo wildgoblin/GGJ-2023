@@ -62,12 +62,17 @@ public class GameController : MonoBehaviour
     [SerializeField] float tempertureStepInterval;
 
     [Header("Slugs")]
+    
     [SerializeField] float slugSpawnTimer;
     float slugTimer;
     [SerializeField] float slugMovementSpeed;
+    [SerializeField] float slugStopDistance;
+    [SerializeField] float slugDieTimer;
     [SerializeField] GameObject slugPrefab;
     [SerializeField] GameObject slugParentObject;
     [SerializeField] Transform[] slugSpawnerLocation;
+    [SerializeField] GameObject sprayBottleObject;
+    SpriteRenderer sprayBottleSpriteRenderer;
 
 
     [Header("DEBUGGING. DO NOT TOUCH.")]
@@ -82,7 +87,8 @@ public class GameController : MonoBehaviour
     [SerializeField] bool waterLevelLow;
     [SerializeField] float nutrientLevel;
     [SerializeField] bool nutrientLevelLow;
-    
+
+    [SerializeField] bool spraySelected;
     [SerializeField] float tempertureLevel;
 
     [SerializeField] bool tempertureOn;
@@ -121,6 +127,8 @@ public class GameController : MonoBehaviour
         nutrientLevel = startNutrientLevels;
         tempertureLevel = startTemperture;
         timeAsHappy = 0;
+
+        sprayBottleSpriteRenderer = sprayBottleObject.GetComponent<SpriteRenderer>();
 
         waterBtnTimer = disableWaterBtnTime; //Ensure water can be used immediatly
         nutrientBtnTimer = disableNutrientBtnTime; //Ensure Nutrient can be used immediatly
@@ -161,7 +169,9 @@ public class GameController : MonoBehaviour
         UpdateWaterBool();
         UpdateSunBool();
         UpdateHappinessBool();
-        UpdateSlugs();
+        UpdateAndSpawnSlugs();
+
+        UpdateSprayBottle();
 
         UpdateStage();
 
@@ -172,7 +182,31 @@ public class GameController : MonoBehaviour
 
     }
 
-    private void UpdateSlugs()
+    private void UpdateSprayBottle()
+    {
+
+        //Turn on spray bottle
+        if (spraySelected && sprayBottleSpriteRenderer.enabled == false)
+        {
+            sprayBottleSpriteRenderer.enabled = true;
+        }
+
+        else if (spraySelected && sprayBottleSpriteRenderer.enabled == true)
+        {
+            var mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            var mouseXPos = mousePosition.x;
+            var mouseYPos = mousePosition.y;
+
+            sprayBottleObject.transform.position = new Vector3(mouseXPos, mouseYPos, 0);
+        }
+        else if (!spraySelected && sprayBottleSpriteRenderer.enabled == true)
+        {
+            sprayBottleSpriteRenderer.enabled = false;
+        }
+
+    }
+
+    private void UpdateAndSpawnSlugs()
     {
         if(currentStageIndex >= 2) //Stage 3 +
         {
@@ -181,7 +215,21 @@ public class GameController : MonoBehaviour
             if(slugTimer >= slugSpawnTimer)
             {
                 //spawn Slug
-                Instantiate(slugPrefab, slugParentObject.transform);
+                GameObject slug = Instantiate(slugPrefab, slugParentObject.transform);
+                int randomSpawnPosition = UnityEngine.Random.Range(0, slugSpawnerLocation.Length);
+                slug.transform.position = slugSpawnerLocation[randomSpawnPosition].transform.position;
+                if(slug.transform.position.x > 0)
+                {
+                    slug.GetComponent<SpriteRenderer>().flipX = true;
+                    foreach (Transform child in slug.transform)
+                    {
+                        child.gameObject.GetComponent<SpriteRenderer>().flipX = true;
+                        var childPosition = child.gameObject.transform.localPosition;
+                        child.gameObject.transform.localPosition = new Vector3(childPosition.x * -1f, childPosition.y, childPosition.z);
+                    }
+                        
+                }
+                slugTimer = 0;
 
 
             }
@@ -330,6 +378,8 @@ public class GameController : MonoBehaviour
         sunButton.color = Color.grey;
 
         sunOn = true;
+
+        spraySelected = false;
     }
 
     public void TurnOffSun()
@@ -337,6 +387,8 @@ public class GameController : MonoBehaviour
         shadeButton.color = Color.grey;
         sunButton.color = sunBtnBGColor;
         sunOn = false;
+
+        spraySelected = false;
     }
 
     public void AddWater()
@@ -348,6 +400,7 @@ public class GameController : MonoBehaviour
             waterBtnTimer = 0;
         }
 
+        spraySelected = false;
     }
 
     public void AddNutrients()
@@ -358,9 +411,42 @@ public class GameController : MonoBehaviour
             nutrientLevel += nutrientIncreaseStepInterval;
             nutrientBtnTimer = 0;
         }
+
+        spraySelected = false;
         
     }
 
+    public void SelectSpray()
+    {
+        spraySelected = true;
+    }
+
+    public float GetSlugSpeed()
+    {
+        return slugMovementSpeed;
+    }
+
+
+    public float GetSlugStopDistance()
+    {
+        return slugStopDistance;
+    }
     
+    public bool GetSpraySelected()
+    {
+        return spraySelected;
+    }
+
+    public void SetSpraySelectedFalse()
+    {
+        spraySelected = false;
+    }
+
+    public float GetSlugDieTimer()
+    {
+        return slugDieTimer;
+    }
+
+
 
 }

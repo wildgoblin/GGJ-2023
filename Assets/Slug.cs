@@ -1,18 +1,63 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Cinemachine;
+using System;
 
 public class Slug : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
+    GameObject player;
+    GameController gc;
+    [SerializeField] Sprite faceSad;
+
+    float offset;
+
+    private void Start()
     {
-        
+        player = GameObject.FindGameObjectWithTag("Player");
+        gc = GameController.Instance;
+        offset = gc.GetSlugStopDistance();
+    }
+    private void Update()
+    {
+        MoveSlug();
+        if(Input.GetMouseButtonDown(0) )
+        {
+            Vector2 cubeRay = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            RaycastHit2D cubeHit = Physics2D.Raycast(cubeRay, Vector2.zero);
+
+            if (cubeHit)
+            {
+                //check spray
+                if (gc.GetSpraySelected())
+                {
+                    //Hurt me!
+                    cubeHit.collider.transform.GetChild(0).GetComponent<SpriteRenderer>().sprite = faceSad;
+                    StartCoroutine(WaitThenDie(cubeHit.collider));
+                    gc.SetSpraySelectedFalse();
+                }
+            }
+
+        }
     }
 
-    // Update is called once per frame
-    void Update()
+    IEnumerator WaitThenDie(Collider2D collider2D)
     {
-        
+        yield return new WaitForSeconds(gc.GetSlugDieTimer());
+        Destroy(collider2D.gameObject);
     }
+
+    private void MoveSlug()
+    {
+        if (transform.position.x > player.transform.position.x)
+        {
+            offset = -offset;
+        }
+
+        var playerPos = new Vector3(player.transform.position.x - offset, player.transform.position.y + 0.2f, player.transform.position.z);
+
+        transform.position = Vector3.MoveTowards(transform.position, playerPos, gc.GetSlugSpeed() * Time.deltaTime);
+    }
+
+
 }

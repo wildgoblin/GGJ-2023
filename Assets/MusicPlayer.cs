@@ -45,6 +45,8 @@ public class MusicPlayer : MonoBehaviour
         audioSource.Play();
         yield return new WaitForSeconds(audioSource.clip.length);
         audioSource.clip = loop;
+        audioSource.loop = true;
         audioSource.Play();
+        
     }
 }
