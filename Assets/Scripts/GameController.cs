@@ -11,7 +11,9 @@ public class GameController : MonoBehaviour
     public static GameController Instance { get; private set; }
 
     [Header("Happiness Levels")]
-    [SerializeField] float happinessDecayInterval;    
+    [SerializeField] float happinessDecayInterval;
+    [SerializeField] List<Sprite> happyFaces = new List<Sprite>();
+    [SerializeField] List<Sprite> sadFaces = new List<Sprite>();
 
     [Header("Stage Intervals")]
     [SerializeField] float stageOneTime;
@@ -79,6 +81,7 @@ public class GameController : MonoBehaviour
     [SerializeField] float happiness;
     [SerializeField] float timeAsHappy;
     [SerializeField] bool happy;
+    bool usingHappyFace;
     [SerializeField] float sunLevel;
     [SerializeField] bool sunLevelLowOrHigh;
 
@@ -169,7 +172,9 @@ public class GameController : MonoBehaviour
         UpdateWaterBool();
         UpdateSunBool();
         UpdateHappinessBool();
+        UpdateShroomFaces();
         UpdateAndSpawnSlugs();
+
 
         UpdateSprayBottle();
 
@@ -179,6 +184,23 @@ public class GameController : MonoBehaviour
         nutrientBtnTimer += Time.deltaTime;
         if(happy) { timeAsHappy += Time.deltaTime; }
        
+
+    }
+
+    private void UpdateShroomFaces()
+    {
+        if(happy && !usingHappyFace)
+        {
+            int randomHappyFace = UnityEngine.Random.Range(0, happyFaces.Count);
+            stageForms[currentStageIndex].transform.GetChild(0).GetComponent<SpriteRenderer>().sprite = happyFaces[randomHappyFace];
+            usingHappyFace = true;
+        }
+        else if (!happy && usingHappyFace)
+        {
+            int randomSadFace = UnityEngine.Random.Range(0, sadFaces.Count);
+            stageForms[currentStageIndex].transform.GetChild(0).GetComponent<SpriteRenderer>().sprite = sadFaces[randomSadFace];
+            usingHappyFace = false;
+        }
 
     }
 
