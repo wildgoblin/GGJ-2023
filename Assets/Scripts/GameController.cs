@@ -65,6 +65,7 @@ public class GameController : MonoBehaviour
     [SerializeField] float highTemperture;
     [SerializeField] float startTemperture;
     [SerializeField] float tempertureStepInterval;
+    [SerializeField] Slider tempertureSlider;
 
     [Header("Slugs")]
     
@@ -181,10 +182,12 @@ public class GameController : MonoBehaviour
         UpdateNutrientBool();
         UpdateWaterBool();
         UpdateSunBool();
+        UpdateTempertureSlider();
         UpdateHappinessBool();
         UpdateShroomFaces();
         UpdateAndSpawnSlugs();
         UpdateSlugSFX();
+        
 
 
         UpdateSprayBottle();
@@ -268,6 +271,8 @@ public class GameController : MonoBehaviour
             }
         }
     }
+
+
 
     private void UpdateSlugSFX()
     {
@@ -402,6 +407,25 @@ public class GameController : MonoBehaviour
                 tempertureLevel -= tempertureStepInterval * Time.deltaTime;
             }            
         }
+    }
+
+    private void UpdateTempertureSlider()
+    {
+        if (tempertureOn)
+        {
+            if (sunOn)
+            {
+                tempertureSlider.value += tempertureStepInterval * Time.deltaTime;
+                
+            }
+            else
+            {
+                tempertureSlider.value -= tempertureStepInterval * Time.deltaTime;
+            }
+        }
+
+        
+        tempertureLevel = tempertureSlider.value;
     }
 
     private void AdjustSunLevels()

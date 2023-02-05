@@ -128,6 +128,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   faceSad: {fileID: 21300000, guid: ed493c647ea0c2b4c89e7d1469df87a2, type: 3}
+  sprayClouds: {fileID: 540704207495600874, guid: 7ad51694f6db9c0418c2d162b7791080, type: 3}
 --- !u!95 &6030295234284369408
 Animator:
   serializedVersion: 5

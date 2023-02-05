@@ -14,6 +14,7 @@ public class SunShadeMover : MonoBehaviour
     [SerializeField] float speed;
     [SerializeField] float waitTimeForSwitch;
 
+
     private void Start()
     {
         spriteRenderer = spriteObject.GetComponent<SpriteRenderer>();

@@ -10,6 +10,7 @@ public class Slug : MonoBehaviour
     GameController gc;
     [SerializeField] Sprite faceSad;
     AudioSource audioSource;
+    [SerializeField] GameObject sprayClouds;
 
     float offset;
 
@@ -36,6 +37,7 @@ public class Slug : MonoBehaviour
                     //Hurt me!
                     cubeHit.collider.transform.GetChild(0).GetComponent<SpriteRenderer>().sprite = faceSad;
                     audioSource.Play();
+                    Instantiate(sprayClouds, transform);
                     StartCoroutine(WaitThenDie(cubeHit.collider));
                     gc.SetSpraySelectedFalse();
                 }
