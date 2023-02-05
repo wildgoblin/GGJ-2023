@@ -35,11 +35,15 @@ public class Slug : MonoBehaviour
                 if (gc.GetSpraySelected())
                 {
                     //Hurt me!
-                    cubeHit.collider.transform.GetChild(0).GetComponent<SpriteRenderer>().sprite = faceSad;
-                    audioSource.Play();
-                    Instantiate(sprayClouds, transform);
-                    StartCoroutine(WaitThenDie(cubeHit.collider));
-                    gc.SetSpraySelectedFalse();
+                    if(cubeHit.collider.transform.GetChild(0).GetComponent<SpriteRenderer>().sprite != null)
+                    {
+                        cubeHit.collider.transform.GetChild(0).GetComponent<SpriteRenderer>().sprite = faceSad;
+                        audioSource.Play();
+                        Instantiate(sprayClouds, transform);
+                        StartCoroutine(WaitThenDie(cubeHit.collider));
+                        gc.SetSpraySelectedFalse(); 
+                    }
+
                 }
             }
 

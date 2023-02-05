@@ -253,7 +253,7 @@ public class GameController : MonoBehaviour
 
     private void UpdateAndSpawnSlugs()
     {
-        if(currentStageIndex >= 2) //Stage 3 +
+        if(currentStageIndex >= 2 && currentStageIndex != 4) //Stage 3 +
         {
             slugTimer += Time.deltaTime;
             //Spawn slug after timer
@@ -275,6 +275,13 @@ public class GameController : MonoBehaviour
                         
                 }
                 slugTimer = 0;
+            }
+        }
+        if (currentStageIndex == 4 && slugParentObject.transform.childCount > 0) // stage 5
+        {
+            foreach(Transform slug in slugParentObject.transform)
+            {
+                Destroy(slug.gameObject);
             }
         }
     }
@@ -456,6 +463,10 @@ public class GameController : MonoBehaviour
     {
         if(!sunOn)
         {
+            if(sunLevel < lowSunLevel)
+            {
+                sunLevel = lowSunLevel;
+            }
             shadeButton.color = sunBtnBGColor;
             sunButton.color = Color.grey;
 
@@ -473,6 +484,10 @@ public class GameController : MonoBehaviour
     {
         if(sunOn)
         {
+            if (sunLevel > highSunLevel)
+            {
+                sunLevel = highSunLevel;
+            }
             shadeButton.color = Color.grey;
             sunButton.color = sunBtnBGColor;
             sunOn = false;
