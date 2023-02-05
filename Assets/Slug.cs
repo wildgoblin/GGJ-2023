@@ -9,6 +9,7 @@ public class Slug : MonoBehaviour
     GameObject player;
     GameController gc;
     [SerializeField] Sprite faceSad;
+    AudioSource audioSource;
 
     float offset;
 
@@ -16,6 +17,7 @@ public class Slug : MonoBehaviour
     {
         player = GameObject.FindGameObjectWithTag("Player");
         gc = GameController.Instance;
+        audioSource = GetComponent<AudioSource>();
         offset = gc.GetSlugStopDistance();
     }
     private void Update()
@@ -33,6 +35,7 @@ public class Slug : MonoBehaviour
                 {
                     //Hurt me!
                     cubeHit.collider.transform.GetChild(0).GetComponent<SpriteRenderer>().sprite = faceSad;
+                    audioSource.Play();
                     StartCoroutine(WaitThenDie(cubeHit.collider));
                     gc.SetSpraySelectedFalse();
                 }
@@ -43,7 +46,7 @@ public class Slug : MonoBehaviour
 
     IEnumerator WaitThenDie(Collider2D collider2D)
     {
-        yield return new WaitForSeconds(gc.GetSlugDieTimer());
+        yield return new WaitForSeconds(audioSource.clip.length);
         Destroy(collider2D.gameObject);
     }
 

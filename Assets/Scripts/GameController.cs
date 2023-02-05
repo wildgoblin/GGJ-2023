@@ -30,6 +30,7 @@ public class GameController : MonoBehaviour
     [SerializeField] Image sunButton;
     [SerializeField] Image shadeButton;
     private Color sunBtnBGColor;
+    [SerializeField] AudioClip switchingSound;
     
 
     [Header("Water Levels")]
@@ -42,6 +43,7 @@ public class GameController : MonoBehaviour
     [SerializeField] ParticleSystem rainParticle;
     [SerializeField] float disableWaterBtnTime;
     float waterBtnTimer;
+    [SerializeField] AudioClip wateringSound;
 
     [Header("Nutrient Levels")]
     [SerializeField] float maxNutrient;
@@ -53,6 +55,7 @@ public class GameController : MonoBehaviour
     [SerializeField] ParticleSystem nutrientParticle;
     [SerializeField] float disableNutrientBtnTime;
     float nutrientBtnTimer;
+    [SerializeField] AudioClip nutrientsSound;
 
     [Header("Temperture Levels")]    
     [SerializeField] float maxTemperture;
@@ -75,6 +78,9 @@ public class GameController : MonoBehaviour
     [SerializeField] Transform[] slugSpawnerLocation;
     [SerializeField] GameObject sprayBottleObject;
     SpriteRenderer sprayBottleSpriteRenderer;
+    [SerializeField] AudioClip sprayBottleSound;
+    AudioSource slugParentAudioSource;
+    
 
 
     [Header("DEBUGGING. DO NOT TOUCH.")]
@@ -100,6 +106,7 @@ public class GameController : MonoBehaviour
 
     [Header("References")]
     [SerializeField] List<GameObject> stageForms = new List<GameObject>();
+    AudioSource audioSource;
     int currentStageIndex;
 
 
@@ -131,7 +138,10 @@ public class GameController : MonoBehaviour
         tempertureLevel = startTemperture;
         timeAsHappy = 0;
 
+        //References
+        audioSource = GetComponent<AudioSource>();
         sprayBottleSpriteRenderer = sprayBottleObject.GetComponent<SpriteRenderer>();
+        slugParentAudioSource = slugParentObject.GetComponent<AudioSource>();
 
         waterBtnTimer = disableWaterBtnTime; //Ensure water can be used immediatly
         nutrientBtnTimer = disableNutrientBtnTime; //Ensure Nutrient can be used immediatly
@@ -174,6 +184,7 @@ public class GameController : MonoBehaviour
         UpdateHappinessBool();
         UpdateShroomFaces();
         UpdateAndSpawnSlugs();
+        UpdateSlugSFX();
 
 
         UpdateSprayBottle();
@@ -186,6 +197,8 @@ public class GameController : MonoBehaviour
        
 
     }
+
+
 
     private void UpdateShroomFaces()
     {
@@ -252,11 +265,20 @@ public class GameController : MonoBehaviour
                         
                 }
                 slugTimer = 0;
-
-
             }
+        }
+    }
 
-
+    private void UpdateSlugSFX()
+    {
+        if (slugParentObject.transform.childCount > 0 && !slugParentAudioSource.isPlaying)
+        {
+            Debug.Log("Playing Slug Muddy Sound!");
+            slugParentAudioSource.Play();
+        }
+        else if (slugParentObject.transform.childCount == 0 && slugParentAudioSource.isPlaying)
+        { 
+            slugParentAudioSource.Stop();           
         }
     }
 
@@ -396,21 +418,34 @@ public class GameController : MonoBehaviour
 
     public void TurnOnSun()
     {
-        shadeButton.color = sunBtnBGColor;
-        sunButton.color = Color.grey;
+        if(!sunOn)
+        {
+            shadeButton.color = sunBtnBGColor;
+            sunButton.color = Color.grey;
 
-        sunOn = true;
+            sunOn = true;
 
+            
+            PlaySFX(switchingSound);
+        }
         spraySelected = false;
+
+
     }
 
     public void TurnOffSun()
     {
-        shadeButton.color = Color.grey;
-        sunButton.color = sunBtnBGColor;
-        sunOn = false;
+        if(sunOn)
+        {
+            shadeButton.color = Color.grey;
+            sunButton.color = sunBtnBGColor;
+            sunOn = false;
 
+            
+            PlaySFX(switchingSound);
+        }
         spraySelected = false;
+
     }
 
     public void AddWater()
@@ -420,9 +455,12 @@ public class GameController : MonoBehaviour
             Instantiate(rainParticle);
             waterLevel += waterIncreaseStepInterval;
             waterBtnTimer = 0;
+            PlaySFX(wateringSound);
         }
 
         spraySelected = false;
+        
+        
     }
 
     public void AddNutrients()
@@ -432,15 +470,31 @@ public class GameController : MonoBehaviour
             Instantiate(nutrientParticle);
             nutrientLevel += nutrientIncreaseStepInterval;
             nutrientBtnTimer = 0;
+            PlaySFX(nutrientsSound);
         }
 
         spraySelected = false;
         
     }
 
+    private void PlaySFX(AudioClip clip)
+    {
+        if(clip != null)
+        {
+            audioSource.PlayOneShot(clip);
+        }
+        
+    }
+
     public void SelectSpray()
     {
-        spraySelected = true;
+        if(spraySelected == false)
+        {
+            spraySelected = true;
+            PlaySFX(sprayBottleSound);
+        }
+        
+
     }
 
     public float GetSlugSpeed()
