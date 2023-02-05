@@ -104,6 +104,7 @@ public class GameController : MonoBehaviour
 
     [SerializeField] bool spraySelected;
     [SerializeField] float tempertureLevel;
+    [SerializeField] bool tempertureLowOrHigh;
 
     [SerializeField] bool tempertureOn;
 
@@ -143,6 +144,7 @@ public class GameController : MonoBehaviour
         nutrientLevel = startNutrientLevels;
         tempertureLevel = startTemperture;
         tempertureSlider.gameObject.SetActive(false);
+        tempertureLowOrHigh = false;
         sprayBottleButton.gameObject.SetActive(false);
         timeAsHappy = 0;
 
@@ -189,6 +191,7 @@ public class GameController : MonoBehaviour
         UpdateNutrientBool();
         UpdateWaterBool();
         UpdateSunBool();
+        UpdateTempertureBool();
         UpdateTempertureSlider();
         UpdateHappinessBool();
         UpdateShroomFaces();
@@ -201,6 +204,7 @@ public class GameController : MonoBehaviour
 
         UpdateStage();
 
+        
         waterBtnTimer += Time.deltaTime;
         nutrientBtnTimer += Time.deltaTime;
         if(happy) { timeAsHappy += Time.deltaTime; }
@@ -310,7 +314,9 @@ public class GameController : MonoBehaviour
             TurnOnStage(4);
             Debug.Log("Activate Stage Five");
             //Play timeline
+            MusicPlayer.Instance.StopMusic();
             timelineDirector.enabled = true;
+            timelineDirector.Play();
         }
         else if (timeAsHappy < stageFourTime && timeAsHappy >= stageThreeTime && currentStageIndex < 3)
         {
@@ -361,6 +367,22 @@ public class GameController : MonoBehaviour
             waterLevelLow = false;
         }
     }
+    private void UpdateTempertureBool()
+    {
+        if (tempertureOn)
+        {
+            //Decrease Happiness if too low or too high
+            if (tempertureLevel < lowTemperture || tempertureLevel > highTemperture)
+            {
+                tempertureLowOrHigh = true;
+            }
+            else
+            {
+                tempertureLowOrHigh = false;
+            }
+        }
+
+    }
 
     private void UpdateSunBool()
     {
@@ -379,7 +401,7 @@ public class GameController : MonoBehaviour
     private void UpdateHappinessBool()
     {
 
-        if (nutrientLevelLow == true || waterLevelLow == true || sunLevelLowOrHigh == true)
+        if (nutrientLevelLow == true || waterLevelLow == true || sunLevelLowOrHigh == true || tempertureLowOrHigh)
         {
             happy = false;
         }
@@ -424,7 +446,9 @@ public class GameController : MonoBehaviour
             else
             {
                 tempertureLevel -= tempertureStepInterval * Time.deltaTime;
-            }            
+            }
+            
+
         }
     }
 

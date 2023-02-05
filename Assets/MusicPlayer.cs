@@ -49,4 +49,9 @@ public class MusicPlayer : MonoBehaviour
         audioSource.Play();
         
     }
+
+    public void StopMusic()
+    {
+        audioSource.Stop();
+    }
 }
